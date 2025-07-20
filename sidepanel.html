@@ -3,19 +3,21 @@
 
 <head>
     <title>Maze Tracker Side Panel</title>
-    <link rel="stylesheet" href="css/popup.css" />
+    <link rel="stylesheet" href="css/main.css" />
 </head>
 
-<body>
-    <h2 id="level">Level sidepanel</h2>
-    <p id="lineCount">Lines used:</p>
-    <h3>Used Functions</h3>
-    <ul id="functionList"></ul>
-    <h3>Code</h3>
-    <pre id="mazeCode">Loading...</pre>
+<body style="display: flex; flex-direction: column;">
+    <h3>Used Functions (All Levels)</h3>
+    <ul id="totalFunctionList"></ul>
+    <div class="bottomWrapper">
+        <p id="clearDataPara" style="visibility: visible;">
+            Want to start over?
+            <button class="secondary" id="clearData">Clear data</button>
+        </p>
+        <div>Go to: <a href="https://blockly.games/maze" target="_blank"
+                rel="noopener noreferrer">https://blockly.games/maze</a></div>
+    </div>
     <script src="js/sidepanel.js"></script>
-    <div>Go to: <a href="https://blockly.games/maze">https://blockly.games/maze</a></div>
-
 </body>
 
 </html>

@@ -15,41 +15,47 @@ document.addEventListener("DOMContentLoaded", () => {
 
         document.getElementById("mazeCode").textContent = info.code;
 
-        const list = document.getElementById("functionList");
-        list.innerHTML = "";
-
-        Object.entries(info.functionCounts).forEach(([fn, count]) => {
-            const li = document.createElement("li");
-            li.textContent = `${fn}(): ${count}`;
-            list.appendChild(li);
-        });
     });
+    // Add event listener for the clear button
+    const clearButton = document.getElementById("clearData");
+    if (clearButton) {
+        clearButton.addEventListener("click", () => {
+            // Clear both lastMazeData and totalFunctionCounts
+            chrome.storage.local.set({
+                lastMazeData: null,
+                totalFunctionCounts: {}
+            }, () => {
+                // Update the UI to reflect cleared data
+                document.getElementById("mazeCode").textContent = "No data yet.";
+                document.getElementById("level").textContent = "Level unknown";
+                document.getElementById("lineCount").textContent = "Lines used: 0";
+
+                // Clear function lists
+                document.getElementById("totalFunctionList").innerHTML = "";
+
+                // Show confirmation to user
+                alert("All data has been cleared!");
+            });
+        });
+    }
 });
 
 function updateView() {
-    chrome.storage.local.get("lastMazeData", (data) => {
+    chrome.storage.local.get(["lastMazeData", "totalFunctionCounts"], (data) => {
         const info = data.lastMazeData;
+        const totalCounts = data.totalFunctionCounts || {};
 
-        if (!info) {
-            document.getElementById("mazeCode").textContent = "No data yet.";
-            return;
-        }
+        // [existing code to update current level info]
 
-        document.getElementById("level").textContent = info.level
-            ? `Level ${info.level}`
-            : "Level unknown";
+        // Display total counts
+        const totalList = document.getElementById("totalFunctionList");
+        if (totalList) {
+            totalList.innerHTML = "";
 
-        document.getElementById("lineCount").textContent = `Lines used: ${info.lineCount || 0}`;
-        document.getElementById("mazeCode").textContent = info.code || "";
-
-        const list = document.getElementById("functionList");
-        list.innerHTML = "";
-
-        if (info.functionCounts) {
-            for (const [func, count] of Object.entries(info.functionCounts)) {
+            for (const [func, count] of Object.entries(totalCounts)) {
                 const li = document.createElement("li");
                 li.textContent = `${func}(): ${count}`;
-                list.appendChild(li);
+                totalList.appendChild(li);
             }
         }
     });

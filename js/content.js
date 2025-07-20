@@ -28,7 +28,22 @@ const observer = new MutationObserver(() => {
                 functionCounts
             };
 
+            // Save current level data
             chrome.storage.local.set({ lastMazeData: data });
+
+            // Update total counts
+            chrome.storage.local.get("totalFunctionCounts", (result) => {
+                let totalCounts = result.totalFunctionCounts || {};
+
+                // Add current level counts to totals
+                for (const [func, count] of Object.entries(functionCounts)) {
+                    totalCounts[func] = (totalCounts[func] || 0) + count;
+                }
+
+                // Save updated totals
+                chrome.storage.local.set({ totalFunctionCounts: totalCounts });
+            });
+
             console.log("Maze data captured:", data);
         }
     }

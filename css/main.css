@@ -14,3 +14,8 @@ pre {
     border-radius: 6px;
     white-space: pre-wrap;
 }
+
+.bottomWrapper {
+    position: absolute;
+    bottom: 14px;
+}
