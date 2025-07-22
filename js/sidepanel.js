@@ -46,32 +46,160 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("mazeCode").textContent = info.code;
   });
+
   // Add event listener for the clear button
   const clearButton = document.getElementById("clearData");
   if (clearButton) {
-    clearButton.addEventListener("click", () => {
-      // Clear both lastMazeData and totalFunctionCounts
-      chrome.storage.local.set(
-        {
-          lastMazeData: null,
-          totalFunctionCounts: {},
-        },
-        () => {
-          // Update the UI to reflect cleared data
-          document.getElementById("mazeCode").textContent = "No data yet.";
-          document.getElementById("level").textContent = "Level unknown";
-          document.getElementById("lineCount").textContent = "Lines used: 0";
+    clearButton.addEventListener("click", showConfirmationModal);
+  }
 
-          // Clear function lists
-          document.getElementById("totalFunctionList").innerHTML = "";
+  // Add event listeners for the confirmation modal buttons
+  const cancelButton = document.getElementById("cancelClear");
+  if (cancelButton) {
+    cancelButton.addEventListener("click", hideConfirmationModal);
+  }
 
-          // Show confirmation to user
-          alert("All data has been cleared!");
-        }
-      );
+  const confirmButton = document.getElementById("confirmClear");
+  if (confirmButton) {
+    confirmButton.addEventListener("click", () => {
+      hideConfirmationModal();
+      clearAllData();
     });
   }
+
+  // Add event listener for the homeAndClear button
+  const homeAndClearButton = document.getElementById("homeAndClear");
+  if (homeAndClearButton) {
+    homeAndClearButton.addEventListener(
+      "click",
+      showConfirmationModalForHomeAndClear
+    );
+  }
 });
+
+// Function to show the confirmation modal
+function showConfirmationModal() {
+  const modal = document.getElementById("confirmationModal");
+  if (modal) {
+    modal.style.display = "flex";
+  }
+}
+
+// Function to show the confirmation modal for homeAndClear
+function showConfirmationModalForHomeAndClear() {
+  // Update the modal text for this specific action
+  const modalText = document.querySelector("#confirmationModal p");
+  if (modalText) {
+    modalText.textContent =
+      "Are you sure you want to clear all data and go to the homepage?";
+  }
+
+  // Change the confirm button action
+  const confirmButton = document.getElementById("confirmClear");
+  if (confirmButton) {
+    // Remove previous event listeners
+    const newConfirmButton = confirmButton.cloneNode(true);
+    confirmButton.parentNode.replaceChild(newConfirmButton, confirmButton);
+
+    // Add new event listener
+    newConfirmButton.addEventListener("click", () => {
+      hideConfirmationModal();
+      goHomeAndClear();
+    });
+  }
+
+  // Show the modal
+  showConfirmationModal();
+}
+
+// Function to hide the confirmation modal
+function hideConfirmationModal() {
+  const modal = document.getElementById("confirmationModal");
+  if (modal) {
+    modal.style.display = "none";
+
+    // Reset the modal text to default
+    setTimeout(() => {
+      const modalText = document.querySelector("#confirmationModal p");
+      if (modalText) {
+        modalText.textContent = "Are you sure you want to clear all data?";
+      }
+
+      // Reset the confirm button action
+      const confirmButton = document.getElementById("confirmClear");
+      if (confirmButton) {
+        // Remove previous event listeners
+        const newConfirmButton = confirmButton.cloneNode(true);
+        confirmButton.parentNode.replaceChild(newConfirmButton, confirmButton);
+
+        // Add default event listener
+        newConfirmButton.addEventListener("click", () => {
+          hideConfirmationModal();
+          clearAllData();
+        });
+      }
+    }, 300);
+  }
+}
+
+// Function to clear all data
+function clearAllData() {
+  // Clear both lastMazeData and totalFunctionCounts
+  chrome.storage.local.set(
+    {
+      lastMazeData: null,
+      totalFunctionCounts: {},
+    },
+    () => {
+      // Update the UI to reflect cleared data
+      const mazeCodeElement = document.getElementById("mazeCode");
+      if (mazeCodeElement) mazeCodeElement.textContent = "No data yet.";
+
+      const levelElement = document.getElementById("level");
+      if (levelElement) levelElement.textContent = "Level unknown";
+
+      const lineCountElement = document.getElementById("lineCount");
+      if (lineCountElement) lineCountElement.textContent = "Lines used: 0";
+
+      // Clear function lists
+      const totalFunctionList = document.getElementById("totalFunctionList");
+      if (totalFunctionList) totalFunctionList.innerHTML = "";
+
+      // Show notification that data was cleared
+      showNotification("All data has been cleared!");
+    }
+  );
+}
+
+// Function to show a notification
+function showNotification(message, duration = 3000) {
+  // Create notification element if it doesn't exist
+  let notification = document.getElementById("notification");
+  if (!notification) {
+    notification = document.createElement("div");
+    notification.id = "notification";
+    notification.style.position = "fixed";
+    notification.style.top = "10px";
+    notification.style.left = "50%";
+    notification.style.transform = "translateX(-50%)";
+    notification.style.backgroundColor = "#4CAF50";
+    notification.style.color = "white";
+    notification.style.padding = "10px 20px";
+    notification.style.borderRadius = "5px";
+    notification.style.zIndex = "1000";
+    notification.style.boxShadow = "0 2px 5px rgba(0,0,0,0.2)";
+    document.body.appendChild(notification);
+  }
+
+  // Set message and show notification
+  notification.textContent = message;
+  notification.style.display = "block";
+
+  // Hide after duration
+  setTimeout(() => {
+    notification.style.display = "none";
+  }, duration);
+}
 
 function updateView() {
   chrome.storage.local.get(["lastMazeData", "totalFunctionCounts"], (data) => {

@@ -1,42 +1,49 @@
 <!DOCTYPE html>
 <html>
-  <meta charset="UTF-8" />
-  <head>
+<meta charset="UTF-8" />
+
+<head>
     <title>Maze Tracker Side Panel</title>
     <link rel="stylesheet" href="css/main.css" />
-  </head>
+</head>
 
-  <body style="display: flex; flex-direction: column">
+<body style="display: flex; flex-direction: column">
     <h3>Verwendete Funktionen</h3>
     <table>
-      <thead>
-        <tr>
-          <th>Funktionen</th>
-          <th class="countCell">Anzahl</th>
-        </tr>
-      </thead>
-      <tbody id="totalFunctionList">
-        <!-- Function rows will be inserted here -->
-      </tbody>
-      <tfoot>
-        <tr class="summary-row">
-          <td>Ergebnis</td>
-          <td id="totalFunctionCount">0</td>
-        </tr>
-      </tfoot>
+        <thead>
+            <tr>
+                <th>Funktionen</th>
+                <th class="countCell">Anzahl</th>
+            </tr>
+        </thead>
+        <tbody id="totalFunctionList">
+            <!-- Function rows will be inserted here -->
+        </tbody>
+        <tfoot>
+            <tr class="summary-row">
+                <td>Ergebnis</td>
+                <td id="totalFunctionCount">0</td>
+            </tr>
+        </tfoot>
     </table>
     <div class="bottomWrapper">
-      <p id="clearDataPara" style="visibility: visible">
-        Neu anfangen?
-        <button class="secondary" id="clearData">Daten löschen</button>
-      </p>
-      <a
-        href="https://blockly.games/maze"
-        target="_blank"
-        rel="noopener noreferrer"
-        >https://blockly.games/maze</a
-      >
+        <p id="clearDataPara" style="visibility: visible">
+            Neu anfangen?
+            <button class="secondary" id="clearData">Daten löschen</button>
+        </p>
+        <a href="https://blockly.games/maze" target="_blank" rel="noopener noreferrer">https://blockly.games/maze</a>
+    </div>
+    <div id="confirmationModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h4>Confirm Action</h4>
+            <p>Bist du sicher, dass du alle Daten löschen willst?</p>
+            <div class="modal-buttons">
+                <button id="confirmClear" class="primary">Ja lösche Daten</button>
+                <button id="cancelClear" class="secondary">Abbrechen</button>
+            </div>
+        </div>
     </div>
     <script src="js/sidepanel.js"></script>
-  </body>
+</body>
+
 </html>
