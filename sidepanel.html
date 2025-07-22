@@ -1,23 +1,42 @@
 <!DOCTYPE html>
 <html>
-
-<head>
+  <meta charset="UTF-8" />
+  <head>
     <title>Maze Tracker Side Panel</title>
     <link rel="stylesheet" href="css/main.css" />
-</head>
+  </head>
 
-<body style="display: flex; flex-direction: column;">
-    <h3>Used Functions (All Levels)</h3>
-    <ul id="totalFunctionList"></ul>
+  <body style="display: flex; flex-direction: column">
+    <h3>Verwendete Funktionen</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Funktionen</th>
+          <th class="countCell">Anzahl</th>
+        </tr>
+      </thead>
+      <tbody id="totalFunctionList">
+        <!-- Function rows will be inserted here -->
+      </tbody>
+      <tfoot>
+        <tr class="summary-row">
+          <td>Ergebnis</td>
+          <td id="totalFunctionCount">0</td>
+        </tr>
+      </tfoot>
+    </table>
     <div class="bottomWrapper">
-        <p id="clearDataPara" style="visibility: visible;">
-            Want to start over?
-            <button class="secondary" id="clearData">Clear data</button>
-        </p>
-        <div>Go to: <a href="https://blockly.games/maze" target="_blank"
-                rel="noopener noreferrer">https://blockly.games/maze</a></div>
+      <p id="clearDataPara" style="visibility: visible">
+        Neu anfangen?
+        <button class="secondary" id="clearData">Daten löschen</button>
+      </p>
+      <a
+        href="https://blockly.games/maze"
+        target="_blank"
+        rel="noopener noreferrer"
+        >https://blockly.games/maze</a
+      >
     </div>
     <script src="js/sidepanel.js"></script>
-</body>
-
+  </body>
 </html>
