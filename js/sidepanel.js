@@ -1,3 +1,11 @@
+const maxLevel = 8;
+
+const mazeLevel1Url = "https://blockly.games/maze?lang=de&level=1";
+
+let timerInterval;
+let startTime;
+let timerRunning = false;
+
 // Function to check URL and hide div if needed
 function checkUrlAndHideDiv() {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -7,16 +15,16 @@ function checkUrlAndHideDiv() {
       currentTab.url &&
       currentTab.url.startsWith("https://blockly.games")
     ) {
-      // Hide the "Go to" div
-      const goToDiv = document.querySelector("div.bottomWrapper > div");
-      if (goToDiv) {
-        goToDiv.style.display = "none";
+      // Only hide the link to Blockly Games, not the timer
+      const blocklyLink = document.querySelector("div.bottomWrapper > a");
+      if (blocklyLink) {
+        blocklyLink.style.display = "none";
       }
     } else {
-      // Show the div if not on Blockly Games
-      const goToDiv = document.querySelector("div.bottomWrapper > div");
-      if (goToDiv) {
-        goToDiv.style.display = "block";
+      // Show the link if not on Blockly Games
+      const blocklyLink = document.querySelector("div.bottomWrapper > a");
+      if (blocklyLink) {
+        blocklyLink.style.display = "block";
       }
     }
   });
@@ -59,6 +67,15 @@ document.addEventListener("DOMContentLoaded", () => {
     cancelButton.addEventListener("click", hideConfirmationModal);
   }
 
+  // Check if timer is already running (in case of refresh)
+  chrome.storage.local.get(["timerRunning", "timerStartTime"], (data) => {
+    if (data.timerRunning) {
+      timerRunning = true;
+      startTime = data.timerStartTime;
+      startTimer();
+    }
+  });
+
   const confirmButton = document.getElementById("confirmClear");
   if (confirmButton) {
     confirmButton.addEventListener("click", () => {
@@ -75,7 +92,134 @@ document.addEventListener("DOMContentLoaded", () => {
       showConfirmationModalForHomeAndClear
     );
   }
+
+  // Add event listener for the start maze timer button
+  const startMazeTimerButton = document.getElementById("startMazeTimer");
+  if (startMazeTimerButton) {
+    startMazeTimerButton.addEventListener("click", startMazeWithTimer);
+  }
 });
+
+// Function to start the maze with timer
+function startMazeWithTimer() {
+  // Get the current active tab
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (tabs.length > 0) {
+      const currentTab = tabs[0];
+
+      // Update the current tab to navigate to the maze
+      chrome.tabs.update(currentTab.id, { url: mazeLevel1Url }, (tab) => {
+        // Start the timer
+        startTime = Date.now();
+        startTimer();
+
+        // Save timer state
+        chrome.storage.local.set({
+          timerRunning: true,
+          timerStartTime: startTime,
+        });
+
+        // Hide the button
+        document.getElementById("startMazeTimer").style.display = "none";
+        document.getElementById("timerDisplay").style.display = "block";
+      });
+    } else {
+      // Fallback to creating a new tab if no active tab is found
+      chrome.tabs.create({ url: mazeLevel1Url }, (_) => {
+        // Start the timer
+        startTime = Date.now();
+        startTimer();
+
+        // Save timer state
+        chrome.storage.local.set({
+          timerRunning: true,
+          timerStartTime: startTime,
+        });
+
+        // Hide the button
+        document.getElementById("startMazeTimer").style.display = "none";
+        document.getElementById("timerDisplay").style.display = "block";
+      });
+    }
+  });
+}
+
+// Function to start the timer
+function startTimer() {
+  console.log("Starting timer");
+  timerRunning = true;
+
+  // Clear any existing interval
+  if (timerInterval) {
+    clearInterval(timerInterval);
+  }
+
+  // Start a new interval
+  timerInterval = setInterval(updateTimer, 50);
+}
+
+// Function to update the timer display
+function updateTimer() {
+  if (!timerRunning) {
+    console.log("Timer not running, clearing interval");
+    clearInterval(timerInterval);
+    timerInterval = null;
+    return;
+  }
+
+  const currentTime = Date.now();
+
+  if (!startTime) {
+    // Try to get startTime from storage
+    chrome.storage.local.get(["timerStartTime"], (data) => {
+      if (data.timerStartTime) {
+        startTime = data.timerStartTime;
+      } else {
+        console.log("No start time available, stopping timer");
+        stopTimer();
+      }
+    });
+    return;
+  }
+
+  const elapsedTime = currentTime - startTime;
+
+  const hours = Math.floor(elapsedTime / 3600000);
+  const minutes = Math.floor((elapsedTime % 3600000) / 60000);
+  const seconds = Math.floor((elapsedTime % 60000) / 1000);
+  const milliseconds = elapsedTime % 1000;
+
+  const timeString = `${hours.toString().padStart(2, "0")}:${minutes
+    .toString()
+    .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}.${milliseconds
+    .toString()
+    .padStart(3, "0")}`;
+
+  document.getElementById("timerValue").textContent = timeString;
+}
+
+// Function to stop the timer
+function stopTimer() {
+  console.log("Stopping timer");
+
+  // Clear the interval
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+
+  // Reset timer state
+  timerRunning = false;
+  startTime = null;
+
+  // Update storage
+  chrome.storage.local.set({
+    timerRunning: false,
+  });
+
+  // Update the UI
+  document.getElementById("startMazeTimer").style.display = "block";
+}
 
 // Function to show the confirmation modal
 function showConfirmationModal() {
@@ -144,11 +288,27 @@ function hideConfirmationModal() {
 
 // Function to clear all data
 function clearAllData() {
-  // Clear both lastMazeData and totalFunctionCounts
+  console.log("Clearing all data in sidepanel.js");
+
+  // Stop the timer first
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+
+  // Reset timer state variables
+  timerRunning = false;
+  startTime = null;
+
+  // Clear extension storage data
   chrome.storage.local.set(
     {
       lastMazeData: null,
       totalFunctionCounts: {},
+      timerRunning: false,
+      timerStartTime: null,
+      level2CompletionTime: null,
+      level2CompletionTimeFormatted: null,
     },
     () => {
       // Update the UI to reflect cleared data
@@ -165,21 +325,60 @@ function clearAllData() {
       const totalFunctionList = document.getElementById("totalFunctionList");
       if (totalFunctionList) totalFunctionList.innerHTML = "";
 
-      // Show notification that data was cleared
-      showNotification("All data has been cleared!");
+      // Reset timer display
+      document.getElementById("timerDisplay").style.display = "none";
+      document.getElementById("timerValue").textContent = "00:00:00";
+
+      // Show start button again
+      const startMazeTimerButton = document.getElementById("startMazeTimer");
+      if (startMazeTimerButton) {
+        startMazeTimerButton.style.display = "block";
+      }
+
+      // Find any Blockly Maze tabs and send message to clear data
+      chrome.tabs.query({ url: "*://blockly.games/maze*" }, (tabs) => {
+        if (tabs.length > 0) {
+          // Send message to the content script in the Blockly Maze tab
+          chrome.tabs.sendMessage(
+            tabs[0].id,
+            { action: "clearAllData" },
+            (response) => {
+              if (chrome.runtime.lastError) {
+                console.error(
+                  "Error sending message:",
+                  chrome.runtime.lastError
+                );
+                // If there's an error, create a new tab
+                chrome.tabs.create({
+                  url: mazeLevel1Url,
+                });
+              } else {
+                console.log("Message sent successfully:", response);
+              }
+            }
+          );
+        } else {
+          // If no Blockly Maze tab is found, create a new one
+          chrome.tabs.create({
+            url: mazeLevel1Url,
+          });
+        }
+      });
+
+      showNotification("Alle Daten wurden gelöscht!");
     }
   );
 }
 
 // Function to show a notification
-function showNotification(message, duration = 3000) {
+function showNotification(message, duration = 5000) {
   // Create notification element if it doesn't exist
   let notification = document.getElementById("notification");
   if (!notification) {
     notification = document.createElement("div");
     notification.id = "notification";
     notification.style.position = "fixed";
-    notification.style.top = "10px";
+    notification.style.top = "50vh";
     notification.style.left = "50%";
     notification.style.transform = "translateX(-50%)";
     notification.style.backgroundColor = "#4CAF50";
@@ -188,6 +387,8 @@ function showNotification(message, duration = 3000) {
     notification.style.borderRadius = "5px";
     notification.style.zIndex = "1000";
     notification.style.boxShadow = "0 2px 5px rgba(0,0,0,0.2)";
+    notification.style.width = "260px";
+    notification.style.textAlign = "center";
     document.body.appendChild(notification);
   }
 
@@ -203,10 +404,7 @@ function showNotification(message, duration = 3000) {
 
 function updateView() {
   chrome.storage.local.get(["lastMazeData", "totalFunctionCounts"], (data) => {
-    const info = data.lastMazeData;
     const totalCounts = data.totalFunctionCounts || {};
-
-    // [existing code to update current level info]
 
     // Display total counts in table format
     const totalList = document.getElementById("totalFunctionList");
@@ -249,3 +447,20 @@ updateView();
 
 // Update every 2 seconds
 setInterval(updateView, 2000);
+
+// Add this to check timer status periodically
+setInterval(() => {
+  chrome.storage.local.get(["timerRunning"], (data) => {
+    if (data.timerRunning === false && timerRunning === true) {
+      // Timer was stopped externally (e.g., level 2 completed)
+      stopTimer();
+
+      // Show completion message
+      chrome.storage.local.get(["levelCompletionTimeFormatted"], (timeData) => {
+        if (timeData.levelCompletionTimeFormatted) {
+          showNotification(`Glückwunsch - Level ${maxLevel} abgeschlossen!`);
+        }
+      });
+    }
+  });
+}, 1000);
