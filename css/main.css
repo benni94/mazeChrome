@@ -6,10 +6,6 @@ body {
 }
 
 h2,
-h3 {
-  margin-top: 0.5em;
-}
-
 pre {
   background: #f0f0f0;
   padding: 10px;
@@ -24,24 +20,37 @@ pre {
 
 table {
   width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 10px;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 12px 0;
+  font-size: 0.9em;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+thead {
+  background-color: #41403c;
+  color: #ffffff;
+  text-align: left;
 }
 
 th,
 td {
-  border: 1px solid #ddd;
-  padding: 6px;
-  text-align: left;
+  padding: 12px 15px;
 }
 
-th {
-  background-color: #f2f2f2;
+tbody tr {
+  border-bottom: 1px solid #dddddd;
+}
+
+tbody tr:nth-of-type(even) {
+  background-color: #f3f3f3;
 }
 
 .summary-row {
+  background-color: #4285f4;
+  color: #ffffff;
   font-weight: bold;
-  background-color: #f8f8f8;
 }
 
 #clearData {
@@ -50,7 +59,7 @@ th {
   color: #fff;
   font-size: medium;
   margin: 5px 10px;
-  padding: 0 4px;
+  padding: 3px 3px;
   border-radius: 4px;
   cursor: pointer;
 }
@@ -112,4 +121,36 @@ button.secondary {
 
 button:hover {
   opacity: 0.9;
+}
+
+#startMazeTimer {
+  font-size: large;
+  padding: 14px 17px;
+}
+
+#timerContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  margin-top: 20px;
+  background: #6eaeee;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 214px;
+  justify-content: space-between;
+}
+
+#timerContainer label {
+  font-weight: bold;
+  color: #333; /* Dark color for text label */
+}
+
+#timerValue {
+  font-family: "Courier New", monospace;
+  background: #e9ecef;
+  padding: 8px 12px;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+  font-size: end;
 }
