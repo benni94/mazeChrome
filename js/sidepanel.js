@@ -1,4 +1,4 @@
-const maxLevel = 8;
+const maxLevel = 2;
 
 const mazeLevel1Url = "https://blockly.games/maze?lang=de&level=1";
 
@@ -300,6 +300,10 @@ function clearAllData() {
   timerRunning = false;
   startTime = null;
 
+  // Check if we're clearing after a successful send
+  const isAfterSuccessfulSend =
+    document.getElementById("sendButton").style.display === "block";
+
   // Clear extension storage data
   chrome.storage.local.set(
     {
@@ -307,8 +311,9 @@ function clearAllData() {
       totalFunctionCounts: {},
       timerRunning: false,
       timerStartTime: null,
-      level2CompletionTime: null,
-      level2CompletionTimeFormatted: null,
+      // Don't clear these if we just sent data successfully
+      level2CompletionTime: isAfterSuccessfulSend ? null : null,
+      levelCompletionTimeFormatted: isAfterSuccessfulSend ? null : null,
     },
     () => {
       // Update the UI to reflect cleared data
@@ -333,6 +338,12 @@ function clearAllData() {
       const startMazeTimerButton = document.getElementById("startMazeTimer");
       if (startMazeTimerButton) {
         startMazeTimerButton.style.display = "block";
+      }
+
+      // Hide send button and name input after successful sending
+      if (isAfterSuccessfulSend) {
+        document.getElementById("sendButton").style.display = "none";
+        document.getElementById("nameInputContainer").style.display = "none";
       }
 
       // Find any Blockly Maze tabs and send message to clear data
@@ -403,43 +414,60 @@ function showNotification(message, duration = 5000) {
 }
 
 function updateView() {
-  chrome.storage.local.get(["lastMazeData", "totalFunctionCounts"], (data) => {
-    const totalCounts = data.totalFunctionCounts || {};
+  chrome.storage.local.get(
+    ["lastMazeData", "totalFunctionCounts", "level2CompletionTime"],
+    (data) => {
+      const totalCounts = data.totalFunctionCounts || {};
 
-    // Display total counts in table format
-    const totalList = document.getElementById("totalFunctionList");
-    if (totalList) {
-      totalList.innerHTML = "";
+      // Display total counts in table format
+      const totalList = document.getElementById("totalFunctionList");
+      if (totalList) {
+        totalList.innerHTML = "";
 
-      let grandTotal = 0;
+        let grandTotal = 0;
 
-      // Sort functions alphabetically for better readability
-      const sortedFunctions = Object.entries(totalCounts).sort((a, b) =>
-        a[0].localeCompare(b[0])
-      );
+        // Sort functions alphabetically for better readability
+        const sortedFunctions = Object.entries(totalCounts).sort((a, b) =>
+          a[0].localeCompare(b[0])
+        );
 
-      for (const [func, count] of sortedFunctions) {
-        const tr = document.createElement("tr");
+        for (const [func, count] of sortedFunctions) {
+          const tr = document.createElement("tr");
 
-        const funcCell = document.createElement("td");
-        funcCell.textContent = `${func}()`;
-        tr.appendChild(funcCell);
+          const funcCell = document.createElement("td");
+          funcCell.textContent = `${func}()`;
+          tr.appendChild(funcCell);
 
-        const countCell = document.createElement("td");
-        countCell.className = "countCell";
-        countCell.textContent = count;
-        tr.appendChild(countCell);
+          const countCell = document.createElement("td");
+          countCell.className = "countCell";
+          countCell.textContent = count;
+          tr.appendChild(countCell);
 
-        totalList.appendChild(tr);
+          totalList.appendChild(tr);
 
-        // Add to grand total
-        grandTotal += count;
+          // Add to grand total
+          grandTotal += count;
+        }
+
+        // Update the summary row with the grand total
+        document.getElementById("totalFunctionCount").textContent = grandTotal;
+
+        // Show send button and name input if max level is reached
+        const sendButton = document.getElementById("sendButton");
+        const nameInputContainer =
+          document.getElementById("nameInputContainer");
+
+        // Check if level2CompletionTime exists, which indicates max level was completed
+        if (data.level2CompletionTime) {
+          sendButton.style.display = "block";
+          nameInputContainer.style.display = "block";
+        } else {
+          sendButton.style.display = "none";
+          nameInputContainer.style.display = "none";
+        }
       }
-
-      // Update the summary row with the grand total
-      document.getElementById("totalFunctionCount").textContent = grandTotal;
     }
-  });
+  );
 }
 
 // Call once at start
@@ -480,13 +508,30 @@ function sendDataToServer(data) {
     .then((response) => response.json())
     .then((result) => {
       console.log("Data sent successfully:", result);
+      showNotification("Daten erfolgreich gesendet!", 3000);
+
+      // Clear the input field
+      document.getElementById("userName").value = "";
+
+      // Clear data after successful sending
+      clearAllData();
     })
     .catch((error) => {
       console.error("Error sending data:", error);
+      showNotification("Fehler beim Senden der Daten", 3000);
     });
 }
 
 document.getElementById("sendButton").addEventListener("click", () => {
+  // Get user name from input
+  const userName = document.getElementById("userName").value.trim();
+
+  // Validate name
+  if (!userName) {
+    showNotification("Bitte gib deinen Namen ein", 3000);
+    return;
+  }
+
   // Get real data from chrome.storage
   chrome.storage.local.get(
     [
@@ -524,7 +569,7 @@ document.getElementById("sendButton").addEventListener("click", () => {
         totalFunctions: totalFunctions,
         completionTimeMs: completionTime,
         completionTimeFormatted: formattedTime,
-        name: "Lukas",
+        name: userName,
         timestamp: new Date().toLocaleString("de-DE", {
           timeZone: "Europe/Berlin",
         }),
@@ -532,9 +577,6 @@ document.getElementById("sendButton").addEventListener("click", () => {
 
       // Send data to server
       sendDataToServer(dataToSend);
-
-      // Show confirmation to user
-      showNotification("Data sent successfully!");
     }
   );
 });

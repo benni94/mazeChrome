@@ -40,8 +40,16 @@
       Neu anfangen?
       <button class="secondary" id="clearData">Daten löschen</button>
     </p>
-    <h1>Send Data</h1>
-    <button id="sendButton">Send</button>
+
+    <!-- New name input field - initially hidden -->
+    <div id="nameInputContainer" style="display: none; margin: 15px 0;">
+      <label for="userName">Dein Name:</label>
+      <input type="text" max="20" maxlength="20" id="userName" placeholder="Namen eingeben"
+        style="padding: 8px; margin-left: 5px;">
+    </div>
+
+    <!-- Send button - initially hidden -->
+    <button class="primary" id="sendButton" style="display: none;">Daten senden</button>
   </div>
   <div id="confirmationModal" class="modal" style="display: none">
     <div class="modal-content">
