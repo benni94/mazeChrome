@@ -464,3 +464,79 @@ setInterval(() => {
     }
   });
 }, 1000);
+
+// #region TIMER ##
+
+const SERVER_URL = "http://192.168.8.76:3000/api/data";
+
+function sendDataToServer(data) {
+  fetch(SERVER_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
+    .then((response) => response.json())
+    .then((result) => {
+      console.log("Data sent successfully:", result);
+    })
+    .catch((error) => {
+      console.error("Error sending data:", error);
+    });
+}
+
+document.getElementById("sendButton").addEventListener("click", () => {
+  // Get real data from chrome.storage
+  chrome.storage.local.get(
+    [
+      "lastMazeData",
+      "totalFunctionCounts",
+      "timerStartTime",
+      "levelCompletionTimeFormatted",
+    ],
+    (data) => {
+      // Calculate completion time
+      let completionTime = 0;
+      if (data.timerStartTime) {
+        completionTime = Date.now() - data.timerStartTime;
+      }
+
+      // Extract current level from lastMazeData
+      const currentLevel = data.lastMazeData?.level || "unknown";
+
+      // Get total function counts
+      const functionCounts = data.totalFunctionCounts || {};
+
+      // Calculate total functions used
+      const totalFunctions = Object.values(functionCounts).reduce(
+        (sum, count) => sum + count,
+        0
+      );
+
+      // Get formatted time if available
+      const formattedTime = data.levelCompletionTimeFormatted || "00:00:00";
+
+      // Create comprehensive data object
+      const dataToSend = {
+        level: currentLevel,
+        functionDetails: functionCounts,
+        totalFunctions: totalFunctions,
+        completionTimeMs: completionTime,
+        completionTimeFormatted: formattedTime,
+        name: "Lukas",
+        timestamp: new Date().toLocaleString("de-DE", {
+          timeZone: "Europe/Berlin",
+        }),
+      };
+
+      // Send data to server
+      sendDataToServer(dataToSend);
+
+      // Show confirmation to user
+      showNotification("Data sent successfully!");
+    }
+  );
+});
+
+// ##endregion

@@ -1,59 +1,59 @@
 <!DOCTYPE html>
 <html>
-  <meta charset="UTF-8" />
+<meta charset="UTF-8" />
 
-  <head>
-    <title>Maze Tracker Side Panel</title>
-    <link rel="stylesheet" href="css/main.css" />
-  </head>
+<head>
+  <title>Maze Tracker Side Panel</title>
+  <link rel="stylesheet" href="css/main.css" />
+</head>
 
-  <body style="display: flex; flex-direction: column">
-    <h3>Verwendete Funktionen</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Funktionen</th>
-          <th class="countCell">Anzahl</th>
-        </tr>
-      </thead>
-      <tbody id="totalFunctionList">
-        <!-- Function rows will be inserted here -->
-      </tbody>
-      <tfoot>
-        <tr class="summary-row">
-          <td>Ergebnis</td>
-          <td id="totalFunctionCount">0</td>
-        </tr>
-      </tfoot>
-    </table>
-    <div class="bottomWrapper">
-      <button class="primary" id="startMazeTimer">
-        Starte Labyrinth mit Timer
-      </button>
-      <div
-        id="timerDisplay"
-        style="margin-top: 10px; font-size: 1.2em; display: none"
-      >
-        <div id="timerContainer">
-          <label for="timerValue">Zeit:</label>
-          <span id="timerValue">00:00:00:000</span>
-        </div>
-      </div>
-      <p id="clearDataPara" style="visibility: visible">
-        Neu anfangen?
-        <button class="secondary" id="clearData">Daten löschen</button>
-      </p>
-    </div>
-    <div id="confirmationModal" class="modal" style="display: none">
-      <div class="modal-content">
-        <h4>Confirm Action</h4>
-        <p>Bist du sicher, dass du alle Daten löschen willst?</p>
-        <div class="modal-buttons">
-          <button id="confirmClear" class="primary">Ja lösche Daten</button>
-          <button id="cancelClear" class="secondary">Abbrechen</button>
-        </div>
+<body style="display: flex; flex-direction: column">
+  <h3>Verwendete Funktionen</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Funktionen</th>
+        <th class="countCell">Anzahl</th>
+      </tr>
+    </thead>
+    <tbody id="totalFunctionList">
+      <!-- Function rows will be inserted here -->
+    </tbody>
+    <tfoot>
+      <tr class="summary-row">
+        <td>Ergebnis</td>
+        <td id="totalFunctionCount">0</td>
+      </tr>
+    </tfoot>
+  </table>
+  <div class="bottomWrapper">
+    <button class="primary" id="startMazeTimer">
+      Starte Labyrinth mit Timer
+    </button>
+    <div id="timerDisplay" style="margin-top: 10px; font-size: 1.2em; display: none">
+      <div id="timerContainer">
+        <label for="timerValue">Zeit:</label>
+        <span id="timerValue">00:00:00:000</span>
       </div>
     </div>
-    <script type="module" src="js/sidepanel.js"></script>
-  </body>
+    <p id="clearDataPara" style="visibility: visible">
+      Neu anfangen?
+      <button class="secondary" id="clearData">Daten löschen</button>
+    </p>
+    <h1>Send Data</h1>
+    <button id="sendButton">Send</button>
+  </div>
+  <div id="confirmationModal" class="modal" style="display: none">
+    <div class="modal-content">
+      <h4>Confirm Action</h4>
+      <p>Bist du sicher, dass du alle Daten löschen willst?</p>
+      <div class="modal-buttons">
+        <button id="confirmClear" class="primary">Ja lösche Daten</button>
+        <button id="cancelClear" class="secondary">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="js/sidepanel.js"></script>
+</body>
+
 </html>
