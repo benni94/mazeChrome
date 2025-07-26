@@ -26,7 +26,19 @@
       </tr>
     </tfoot>
   </table>
+
   <div class="bottomWrapper">
+    <!-- New name input field - initially hidden -->
+    <div id="nameInputContainer" style="display: none; margin: 15px 0;">
+      <label for="userName">Dein Name:</label>
+      <input type="text" max="20" maxlength="20" id="userName" placeholder="Namen eingeben"
+        style="padding: 8px; margin-left: 5px;">
+    </div>
+    <!-- Send button - initially hidden -->
+    <div style="display: flex; justify-content: end; padding-bottom: 20px;">
+      <button class="primary" id="sendButton" style="display: none;">Daten senden</button>
+    </div>
+
     <button class="primary" id="startMazeTimer">
       Starte Labyrinth mit Timer
     </button>
@@ -41,15 +53,7 @@
       <button class="secondary" id="clearData">Daten löschen</button>
     </p>
 
-    <!-- New name input field - initially hidden -->
-    <div id="nameInputContainer" style="display: none; margin: 15px 0;">
-      <label for="userName">Dein Name:</label>
-      <input type="text" max="20" maxlength="20" id="userName" placeholder="Namen eingeben"
-        style="padding: 8px; margin-left: 5px;">
-    </div>
 
-    <!-- Send button - initially hidden -->
-    <button class="primary" id="sendButton" style="display: none;">Daten senden</button>
   </div>
   <div id="confirmationModal" class="modal" style="display: none">
     <div class="modal-content">

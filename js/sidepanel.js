@@ -1,4 +1,5 @@
 const maxLevel = 2;
+const SERVER_URL = "http://192.168.8.91:3000/api/data";
 
 const mazeLevel1Url = "https://blockly.games/maze?lang=de&level=1";
 
@@ -38,21 +39,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   chrome.storage.local.get("lastMazeData", (data) => {
     const info = data.lastMazeData;
-
-    if (!info) {
-      document.getElementById("mazeCode").textContent = "No data yet.";
-      return;
-    }
-
-    document.getElementById("level").textContent = info.level
-      ? `Level ${info.level}`
-      : "Level unknown";
-
-    document.getElementById(
-      "lineCount"
-    ).textContent = `Lines used: ${info.lineCount}`;
-
-    document.getElementById("mazeCode").textContent = info.code;
   });
 
   // Add event listener for the clear button
@@ -317,14 +303,6 @@ function clearAllData() {
     },
     () => {
       // Update the UI to reflect cleared data
-      const mazeCodeElement = document.getElementById("mazeCode");
-      if (mazeCodeElement) mazeCodeElement.textContent = "No data yet.";
-
-      const levelElement = document.getElementById("level");
-      if (levelElement) levelElement.textContent = "Level unknown";
-
-      const lineCountElement = document.getElementById("lineCount");
-      if (lineCountElement) lineCountElement.textContent = "Lines used: 0";
 
       // Clear function lists
       const totalFunctionList = document.getElementById("totalFunctionList");
@@ -494,8 +472,6 @@ setInterval(() => {
 }, 1000);
 
 // #region TIMER ##
-
-const SERVER_URL = "http://192.168.8.76:3000/api/data";
 
 function sendDataToServer(data) {
   fetch(SERVER_URL, {
