@@ -1,5 +1,6 @@
 const maxLevel = 2;
-const SERVER_URL = "http://192.168.8.91:3000/api/data";
+const SERVER_URL = "http://192.168.8.92:3000/api/data";
+//const SERVER_URL = "https://maze.fly.dev/api/data";
 
 const mazeLevel1Url = "https://blockly.games/maze?lang=de&level=1";
 

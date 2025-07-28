@@ -34,7 +34,6 @@
     }
   ],
   "host_permissions": [
-    "*://blockly.games/*",
-    "http://192.168.8.91:3000/*"
+    "*://blockly.games/*"
   ]
 }
