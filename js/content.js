@@ -1,4 +1,4 @@
-const maxLevel = 2;
+const maxLevel = 1;
 
 function extractLevel(text) {
   const match = text.match(/level (\d+)/i);

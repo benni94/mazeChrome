@@ -1,5 +1,5 @@
-const maxLevel = 2;
-const SERVER_URL = "http://192.168.8.92:3000/api/data";
+const maxLevel = 1;
+const SERVER_URL = "http://192.168.56.1:3000/api/data";
 //const SERVER_URL = "https://maze.fly.dev/api/data";
 
 const mazeLevel1Url = "https://blockly.games/maze?lang=de&level=1";
@@ -482,7 +482,25 @@ function sendDataToServer(data) {
     },
     body: JSON.stringify(data),
   })
-    .then((response) => response.json())
+    .then((response) => {
+      // Check if the response is successful
+      if (response.ok) {
+        return response.json();
+      }
+
+      // For error responses, try to get the error message from the response
+      return response.text().then((errorText) => {
+        // Store the status code to use in the error object
+        const statusCode = response.status;
+
+        // Create an error object with the response text as the message
+        const error = new Error(errorText || response.statusText);
+        error.statusCode = statusCode;
+
+        // Throw the error to be caught by the catch block
+        throw error;
+      });
+    })
     .then((result) => {
       console.log("Data sent successfully:", result);
       showNotification("Daten erfolgreich gesendet!", 3000);
@@ -494,8 +512,32 @@ function sendDataToServer(data) {
       clearAllData();
     })
     .catch((error) => {
-      console.error("Error sending data:", error);
-      showNotification("Fehler beim Senden der Daten", 3000);
+      console.log("Error details:", error);
+      console.error("Error sending data:", error.message);
+
+      // Get the status code if available
+      const statusCode = error.statusCode || "unknown";
+
+      // Show a user-friendly notification
+      showNotification(error.message || "Fehler beim Senden der Daten", 3000);
+
+      // If it's a name conflict error (400 in this case), highlight the name field
+      if (statusCode === 400) {
+        const nameInput = document.getElementById("userName");
+        if (nameInput) {
+          // Add error styling
+          nameInput.classList.add("error");
+
+          // Focus on the field for immediate correction
+          nameInput.focus();
+
+          // Remove error class when user starts typing
+          nameInput.addEventListener("input", function removeErrorOnce() {
+            nameInput.classList.remove("error");
+            nameInput.removeEventListener("input", removeErrorOnce);
+          });
+        }
+      }
     });
 }
 

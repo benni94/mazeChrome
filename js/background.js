@@ -1,4 +1,4 @@
-const maxLevel = 2;
+const maxLevel = 1;
 
 // When the extension icon is clicked, open the sidepanel
 chrome.action.onClicked.addListener(async (tab) => {
